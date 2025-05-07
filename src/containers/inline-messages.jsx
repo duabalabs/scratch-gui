@@ -15,13 +15,13 @@ const InlineMessages = ({
     if (!alertsList) {
         return null;
     }
-    // only display inline alerts here
+    // Only display inline alerts here
     const inlineAlerts = filterInlineAlerts(alertsList);
     if (!inlineAlerts || !inlineAlerts.length) {
         return null;
     }
 
-    // get first alert
+    // Get first alert
     const firstInlineAlert = inlineAlerts[0];
     const {
         content,
@@ -40,7 +40,18 @@ const InlineMessages = ({
 };
 
 InlineMessages.propTypes = {
-    alertsList: PropTypes.arrayOf(PropTypes.object),
+    alertsList: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        type: PropTypes.oneOf(['extension', 'standard']).isRequired,
+        content: PropTypes.shape({
+            message: PropTypes.string.isRequired,
+            iconURL: PropTypes.string
+        }).isRequired,
+        iconSpinner: PropTypes.bool,
+        level: PropTypes.oneOf(['info', 'warning', 'error']).isRequired,
+        closeButton: PropTypes.bool,
+        showOnce: PropTypes.bool
+    })),
     className: PropTypes.string
 };
 
@@ -48,9 +59,4 @@ const mapStateToProps = state => ({
     alertsList: state.scratchGui.alerts.alertsList
 });
 
-const mapDispatchToProps = () => ({});
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(InlineMessages);
+export default connect(mapStateToProps)(InlineMessages);

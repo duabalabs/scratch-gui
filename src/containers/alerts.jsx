@@ -15,7 +15,6 @@ const Alerts = ({
     onCloseAlert
 }) => (
     <AlertsComponent
-        // only display standard and extension alerts here
         alertsList={filterPopupAlerts(alertsList)}
         className={className}
         onCloseAlert={onCloseAlert}
@@ -23,7 +22,17 @@ const Alerts = ({
 );
 
 Alerts.propTypes = {
-    alertsList: PropTypes.arrayOf(PropTypes.object),
+    alertsList: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        type: PropTypes.string,
+        content: PropTypes.shape({
+            message: PropTypes.string,
+            iconURL: PropTypes.string
+        }),
+        iconClassName: PropTypes.string,
+        closeButton: PropTypes.bool,
+        showOnce: PropTypes.bool
+    })),
     className: PropTypes.string,
     onCloseAlert: PropTypes.func
 };

@@ -15,11 +15,6 @@ import {
 
 import styles from './save-status.css';
 
-// Wrapper for inline messages in the nav bar, which are all related to saving.
-// Show any inline messages if present, else show the "Save Now" button if the
-// project has changed.
-// We decided to not use an inline message for "Save Now" because it is a reflection
-// of the project state, rather than an event.
 const SaveStatus = ({
     alertsList,
     projectChanged,
@@ -41,7 +36,17 @@ const SaveStatus = ({
     ));
 
 SaveStatus.propTypes = {
-    alertsList: PropTypes.arrayOf(PropTypes.object),
+    alertsList: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        type: PropTypes.string,
+        content: PropTypes.shape({
+            message: PropTypes.string,
+            iconURL: PropTypes.string
+        }),
+        iconClassName: PropTypes.string,
+        closeButton: PropTypes.bool,
+        showOnce: PropTypes.bool
+    })),
     onClickSave: PropTypes.func,
     projectChanged: PropTypes.bool
 };

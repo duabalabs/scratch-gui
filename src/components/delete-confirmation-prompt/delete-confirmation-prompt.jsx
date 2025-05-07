@@ -174,9 +174,9 @@ const DeleteConfirmationPrompt = ({
 DeleteConfirmationPrompt.propTypes = {
     onOk: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    relativeElemRef: PropTypes.object,
-    entityType: PropTypes.string,
-    modalPosition: PropTypes.string,
+    relativeElemRef: PropTypes.instanceOf(Element),
+    entityType: PropTypes.oneOf(['SPRITE', 'COSTUME', 'SOUND']),
+    modalPosition: PropTypes.oneOf(['left', 'right']),
     intl: intlShape.isRequired
 };
 

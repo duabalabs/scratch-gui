@@ -644,7 +644,11 @@ Blocks.propTypes = {
     useCatBlocks: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired,
     workspaceMetrics: PropTypes.shape({
-        targets: PropTypes.objectOf(PropTypes.object)
+        targets: PropTypes.objectOf(PropTypes.shape({
+            scrollX: PropTypes.number,
+            scrollY: PropTypes.number,
+            scale: PropTypes.number
+        }))
     })
 };
 

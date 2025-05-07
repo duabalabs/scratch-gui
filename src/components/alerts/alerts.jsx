@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import Box from '../box/box.jsx';
 import Alert from '../../containers/alert.jsx';
-
 import styles from './alerts.css';
 
 const AlertsComponent = ({
@@ -15,7 +13,7 @@ const AlertsComponent = ({
         bounds="parent"
         className={className}
     >
-        <Box className={styles.alertsInnerContainer} >
+        <Box className={styles.alertsInnerContainer}>
             {alertsList.map((a, index) => (
                 <Alert
                     closeButton={a.closeButton}
@@ -25,7 +23,7 @@ const AlertsComponent = ({
                     iconSpinner={a.iconSpinner}
                     iconURL={a.iconURL}
                     index={index}
-                    key={index}
+                    key={a.id || index}
                     level={a.level}
                     message={a.message}
                     showDownload={a.showDownload}
@@ -39,9 +37,29 @@ const AlertsComponent = ({
 );
 
 AlertsComponent.propTypes = {
-    alertsList: PropTypes.arrayOf(PropTypes.object),
+    alertsList: PropTypes.arrayOf(
+        PropTypes.shape({
+            closeButton: PropTypes.bool,
+            content: PropTypes.node,
+            extensionId: PropTypes.string,
+            extensionName: PropTypes.string,
+            iconSpinner: PropTypes.bool,
+            iconURL: PropTypes.string,
+            level: PropTypes.oneOf(['info', 'warning', 'error']),
+            message: PropTypes.string,
+            showDownload: PropTypes.bool,
+            showReconnect: PropTypes.bool,
+            showSaveNow: PropTypes.bool,
+            id: PropTypes.string
+        })
+    ),
     className: PropTypes.string,
-    onCloseAlert: PropTypes.func
+    onCloseAlert: PropTypes.func.isRequired
+};
+
+AlertsComponent.defaultProps = {
+    alertsList: [],
+    className: ''
 };
 
 export default AlertsComponent;
