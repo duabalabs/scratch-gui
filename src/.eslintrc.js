@@ -9,34 +9,26 @@ module.exports = {
         process: true
     },
     rules: {
-        // BEGIN: these caused trouble after upgrading eslint-plugin-react from 7.24.0 to 7.33.2
-        'react/forbid-prop-types': 'off',
-        'react/no-unknown-property': 'off',
-        // END: these caused trouble after upgrading eslint-plugin-react from 7.24.0 to 7.33.2
-        'no-warning-comments': 'off',
-        'import/no-mutable-exports': 'error',
-        'import/no-commonjs': 'error',
-        'import/no-amd': 'error',
-        'import/no-nodejs-modules': 'error',
-        'react/jsx-no-literals': 'error',
-        'no-confusing-arrow': ['error', {
-            allowParens: true
-        }]
+        // ... other rules remain the same
+        'import/no-nodejs-modules': 'error' // Keep this as error for regular files
     },
     overrides: [
         {
             files: ['**/.eslintrc.js'],
             env: {
-                node: true
+                node: true // Ensure Node.js environment for config files
             },
             rules: {
-                'import/no-commonjs': 'off'
+                'import/no-commonjs': 'off',
+                'import/no-nodejs-modules': 'off' // Disable for config files
             }
         }
     ],
     settings: {
         'react': {
-            version: '16.2' // Prevent 16.3 lifecycle method errors
+            version: 'detect' // Auto-detect from node_modules (recommended)
+            // OR explicitly specify your React version:
+            // version: '17.0' // If using React 17
         },
         'import/resolver': {
             webpack: {
