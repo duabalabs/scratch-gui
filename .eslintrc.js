@@ -8,6 +8,11 @@ module.exports = {
             }
         }
     },
+    settings: {
+        react: {
+            version: 'detect'
+        }
+    },   
     rules: {
         'camelcase': [2, {
             properties: 'never',

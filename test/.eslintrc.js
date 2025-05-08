@@ -7,5 +7,10 @@ module.exports = {
     plugins: ['jest'],
     rules: {
         'react/prop-types': 0
+    },
+    settings: {
+        react: {
+            version: 'detect'
+        }
     }
 };

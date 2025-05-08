@@ -4,30 +4,20 @@ const webpack = require('webpack');
 // Plugins
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 const ScratchWebpackConfigBuilder = require('scratch-webpack-configuration');
-
-// const STATIC_PATH = process.env.STATIC_PATH || '/static';
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 const commonHtmlWebpackPluginOptions = {
-    // Google Tag Manager ID
-    // Looks like 'GTM-XXXXXXX'
     gtm_id: process.env.GTM_ID || '',
-
-    // Google Tag Manager env & auth info for alterative GTM environments
-    // Looks like '&gtm_auth=0123456789abcdefghijklm&gtm_preview=env-00&gtm_cookies_win=x'
-    // Taken from the middle of: GTM -> Admin -> Environments -> (environment) -> Get Snippet
-    // Blank for production
     gtm_env_auth: process.env.GTM_ENV_AUTH || ''
 };
 
-const baseConfig = new ScratchWebpackConfigBuilder(
-    {
-        rootPath: path.resolve(__dirname),
-        enableReact: true,
-        shouldSplitChunks: false,
-        publicPath: 'auto'
-    })
+const baseConfig = new ScratchWebpackConfigBuilder({
+    rootPath: path.resolve(__dirname),
+    enableReact: true,
+    shouldSplitChunks: false,
+    publicPath: 'auto'
+})
     .setTarget('browserslist')
     .merge({
         output: {
@@ -39,15 +29,25 @@ const baseConfig = new ScratchWebpackConfigBuilder(
         },
         resolve: {
             fallback: {
-                Buffer: require.resolve('buffer/'),
-                stream: require.resolve('stream-browserify')
+                buffer: require.resolve('buffer'),
+                stream: require.resolve('stream-browserify'),
+                util: require.resolve('util'),
+                assert: require.resolve('assert'),
+                url: require.resolve('url'),
+                https: require.resolve('https-browserify'),
+                http: require.resolve('stream-http'),
+                os: require.resolve('os-browserify/browser')
             }
         }
     })
+    .addPlugin(new NodePolyfillPlugin())
+    .addPlugin(new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer']
+    }))
     .addModuleRule({
         test: /\.(svg|png|wav|mp3|gif|jpg)$/,
-        resourceQuery: /^$/, // reject any query string
-        type: 'asset' // let webpack decide on the best type of asset
+        resourceQuery: /^$/,
+        type: 'asset'
     })
     .addPlugin(new webpack.DefinePlugin({
         'process.env.DEBUG': Boolean(process.env.DEBUG),
@@ -55,6 +55,16 @@ const baseConfig = new ScratchWebpackConfigBuilder(
         'process.env.GTM_ENV_AUTH': `"${process.env.GTM_ENV_AUTH || ''}"`,
         'process.env.GTM_ID': process.env.GTM_ID ? `"${process.env.GTM_ID}"` : null
     }))
+    .addModuleRule({
+        test: /\.worker\.js$/,
+        use: {
+            loader: 'worker-loader',
+            options: {
+                filename: '[name].js',
+                inline: 'fallback'
+            }
+        }
+    })
     .addPlugin(new CopyWebpackPlugin({
         patterns: [
             {
@@ -66,8 +76,6 @@ const baseConfig = new ScratchWebpackConfigBuilder(
                 to: 'static/blocks-media/high-contrast'
             },
             {
-                // overwrite some of the default block media with high-contrast versions
-                // this entry must come after copying scratch-blocks/media into the high-contrast directory
                 from: 'src/lib/themes/high-contrast/blocks-media',
                 to: 'static/blocks-media/high-contrast',
                 force: true
@@ -84,7 +92,6 @@ if (!process.env.CI) {
     baseConfig.addPlugin(new webpack.ProgressPlugin());
 }
 
-// build the shipping library in `dist/`
 const distConfig = baseConfig.clone()
     .merge({
         entry: {
@@ -94,7 +101,6 @@ const distConfig = baseConfig.clone()
             path: path.resolve(__dirname, 'dist')
         }
     })
-    .addExternals(['react', 'react-dom'])
     .addPlugin(
         new CopyWebpackPlugin({
             patterns: [
@@ -107,7 +113,6 @@ const distConfig = baseConfig.clone()
         })
     );
 
-// build the examples and debugging tools in `build/`
 const buildConfig = baseConfig.clone()
     .enableDevServer(process.env.PORT || 8601)
     .merge({
@@ -162,10 +167,6 @@ const buildConfig = baseConfig.clone()
         ]
     }));
 
-// Skip building `dist/` unless explicitly requested
-// It roughly doubles build time and isn't needed for `scratch-gui` development
-// If you need non-production `dist/` for local dev, such as for `scratch-www` work, you can run something like:
-// `BUILD_MODE=dist npm run build`
 const buildDist = process.env.NODE_ENV === 'production' || process.env.BUILD_MODE === 'dist';
 
 module.exports = buildDist ?
