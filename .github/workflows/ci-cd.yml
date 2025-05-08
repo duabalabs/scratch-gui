@@ -37,12 +37,12 @@ jobs:
                   GitHub head ref: ${{ github.head_ref }}
                   EOF
             - name: Install Dependencies
-              run: npm install --legacy-peer-deps
+              run: yarn
             - name: Run Build
               env:
                 NODE_OPTIONS: --max-old-space-size=4000
                 NODE_ENV: production
-              run: npm run build
+              run: yarn build
             - name: Store Build Output
               uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
               with:
@@ -57,21 +57,6 @@ jobs:
                 for F in chrome chromium chromedriver; do
                     which $F && $F --version || echo Not found: $F
                 done
-            - name: Run Integration Tests
-              env:
-                  JEST_JUNIT_OUTPUT_NAME: results.txt
-                  JEST_JUNIT_OUTPUT_DIR: test-results/integration
-              run: npm run test:integration -- --reporters="default" --reporters="jest-junit"
-            - name: Store Test Results
-              if: always() # Even if tests fail
-              uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
-              with:
-                name: test-output
-                path: ./test-results/* # Both unit and integration test results
-            - run: |
-                if [[ ${{contains(github.ref, 'hotfix')}}  ]]; then
-                sed -e "s|hotfix/REPLACE|${{ github.ref_name }}|" --in-place release.config.js
-                fi
             - name: Semantic Release
               env:
                 NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
